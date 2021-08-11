@@ -10,8 +10,9 @@ SELECT
 FROM sys.query_store_query qsq
     INNER JOIN sys.query_store_query_text qsqt
         ON qsq.query_text_id = qsqt.query_text_id
-WHERE
-    qsqt.query_sql_text LIKE '%your query text%';
+WHERE 1 = 1
+AND    qsqt.query_sql_text LIKE '%your query text%'
+order by last_execution_time desc      
     
     
     
