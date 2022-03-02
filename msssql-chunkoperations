@@ -1,0 +1,29 @@
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Chunk deletes from databases
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+DECLARE @count AS INT;
+
+SELECT @count = COUNT(1)
+FROM [dbo].[AccountingGLEntry.Fact] WITH (NOLOCK)
+WHERE PostingDate < '20120101'
+
+WHILE(@count > 0)
+BEGIN 
+ BEGIN TRANSACTION TDelete
+    
+    ;WITH CTE AS
+    (
+		SELECT TOP(10000) *
+		FROM [dbo].[AccountingGLEntry.Fact] WITH (NOLOCK)
+		WHERE PostingDate < '20120101'
+		ORDER BY id
+    )
+    DELETE FROM CTE
+
+ COMMIT TRANSACTION TDelete
+ 
+ SET @count = @count - 10000;
+ 
+END;
