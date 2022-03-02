@@ -6,7 +6,7 @@
 DECLARE @count AS INT;
 
 SELECT @count = COUNT(1)
-FROM [dbo].[AccountingGLEntry.Fact] WITH (NOLOCK)
+FROM [MYTABLE] WITH (NOLOCK)
 WHERE PostingDate < '20120101'
 
 WHILE(@count > 0)
@@ -16,7 +16,7 @@ BEGIN
     ;WITH CTE AS
     (
 		SELECT TOP(10000) *
-		FROM [dbo].[AccountingGLEntry.Fact] WITH (NOLOCK)
+		FROM [MYTABLE] WITH (NOLOCK)
 		WHERE PostingDate < '20120101'
 		ORDER BY id
     )
