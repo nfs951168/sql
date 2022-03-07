@@ -40,3 +40,22 @@ and		I.name is not null
 AND		DDIPS.avg_fragmentation_in_percent > 0
 and		t.name like '%ossys_espace%'
 ORDER BY DDIPS.avg_fragmentation_in_percent desc
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+--3. Get execution plans for particular query
+----------------------------------------------------------------------------------------------------------------------------------------
+SELECT TOP 10
+    execution_count,
+    total_elapsed_time / 1000 as totalDurationms,
+    total_worker_time / 1000 as totalCPUms,
+    total_logical_reads,
+    total_physical_reads,
+    t.text,
+    sql_handle,
+    plan_handle
+FROM sys.dm_exec_query_stats s 
+CROSS APPLY sys.dm_exec_sql_text(s.sql_handle) as t
+where	t.text like '%select 1 as selected%'
+ORDER BY total_elapsed_time DESC
