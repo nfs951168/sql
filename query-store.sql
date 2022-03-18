@@ -4,16 +4,14 @@
 
 --1. Get que query_id
 SELECT 
-    qsq.query_id,
-    qsq.last_execution_time,
-    qsqt.query_sql_text
-FROM sys.query_store_query qsq
-    INNER JOIN sys.query_store_query_text qsqt
-        ON qsq.query_text_id = qsqt.query_text_id
-WHERE 1 = 1
-AND    qsqt.query_sql_text LIKE '%your query text%'
-order by last_execution_time desc      
-    
-    
-    
-    --2. search in query store management console
+    qs.query_id,
+    qs.last_execution_time,
+	qs.avg_bind_cpu_time,
+    qst.query_sql_text
+FROM sys.query_store_query qs INNER JOIN sys.query_store_query_text qst ON (qs.query_text_id = qst.query_text_id)
+WHERE	1 = 1
+and		qs.last_execution_time >= '2022-03-18 12:00:00'
+AND    qst.query_sql_text LIKE '%OSUSR_9PE_TIMESHEET%'
+and		qst.query_sql_text like '%OSUSR_9PE_EXTRANETUSERS%'
+and		qst.query_sql_text like '%BWSCONTRACTREFERENCE%'
+order by qs.last_execution_time desc    
