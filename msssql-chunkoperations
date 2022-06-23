@@ -1,29 +1,70 @@
-
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Chunk deletes from databases
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 
-DECLARE @count AS INT;
+DECLARE @TotalRecords AS INT;
+DECLARE @Interaction as INT;
+DECLARE @maxIteractions as INT;
+DECLARE @topRecords as INT;
 
-SELECT @count = COUNT(1)
-FROM [MYTABLE] WITH (NOLOCK)
-WHERE PostingDate < '20120101'
 
-WHILE(@count > 0)
-BEGIN 
- BEGIN TRANSACTION TDelete
-    
-    ;WITH CTE AS
-    (
-		SELECT TOP(10000) *
-		FROM [MYTABLE] WITH (NOLOCK)
-		WHERE PostingDate < '20120101'
-		ORDER BY id
-    )
-    DELETE FROM CTE
+SET @maxIteractions = 2;
+SET @topRecords = 1000;
 
- COMMIT TRANSACTION TDelete
- 
- SET @count = @count - 10000;
- 
+--Set records and iteractions variables
+SET @Interaction = 0;
+
+SELECT @TotalRecords = COUNT(1)
+FROM	[myTable] WITH (NOLOCK)
+WHERE	CreatedAt < '2022-01-01'
+
+PRINT 'Total records to delete: ' + convert(varchar, @TotalRecords);
+
+
+--Create Tem table
+IF OBJECT_ID('tempdb..#TEMP_RECORDS') IS NOT NULL DROP TABLE #TEMP_RECORDS
+
+CREATE TABLE #TEMP_RECORDS
+(LogId int,
+timerId int)
+
+WHILE (@Interaction <= @maxIteractions)
+BEGIN
+
+	
+	--Cycle to delete records TopRecords * Num of interactions
+
+	BEGIN TRANSACTION TDelete
+
+	--calculate records to delete
+	PRINT 'interaction ' + convert(varchar, @Interaction) + ': create temp table'
+
+	INSERT INTO #TEMP_RECORDS
+	SELECT	TOP(@topRecords) id, TIMERID
+	FROM	[myTABLE]  WITH (NOLOCK)
+	WHERE	CreatedAt < '2022-01-01'
+	ORDER BY CreatedAt asc
+
+	
+	--1. table 1
+	PRINT 'interaction ' + convert(varchar, @Interaction) + ': delete OneClickLogLines'
+
+	DELETE	logT
+	FROM	[myTABLE] logT INNER JOIN #TEMP_RECORDS REC ON (REC.LogId = logT.TIMERLOGID)
+	
+	--2. table 2
+	PRINT 'interaction ' + convert(varchar, @Interaction) + ': delete timer log'
+
+	DELETE logT
+	FROM [myTABLE] INNER JOIN #TEMP_RECORDS REC ON (REC.LogId = logT.Id)
+
+	
+	--DELETE TEMP TABLE 
+	DELETE FROM #TEMP_RECORDS
+
+	COMMIT TRANSACTION TDelete
+
+	SET @Interaction = @Interaction + 1;
+
 END;
+
