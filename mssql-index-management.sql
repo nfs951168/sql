@@ -65,9 +65,9 @@ ORDER BY total_elapsed_time DESC
 
 ----------------------------------------------------------------------------------------------------------------------------------------
 --Index usage script
---  NumOfSeeks: indicates the number of times the index is used to find a specific row
---  NumOfScans: shows the number of times the leaf pages of the index are scanned
---  NumOfLookups: indicates the number of times a Clustered index is used by the Non-clustered index to fetch the full row 
+--  NumOfSeeks: indicates the number of times the index is used to find a specific row (retrieves selective rows from the table)
+--  NumOfScans: shows the number of times the leaf pages of the index are scanned (Index scan means it retrieves all the rows from the table)
+--  NumOfLookups: indicates the number of times a Clustered index is used by the Non-clustered index to fetch the full row (used in joins)
 --  NumOfUpdates: shows the number of times the index data is modified
 
 --Analyze results
