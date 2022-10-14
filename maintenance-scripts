@@ -1,22 +1,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------
---get blocked transactions
------------------------------------------------------------------------------------------------------------------------------------------------
-SELECT	spid,
-		status,
-		loginame=SUBSTRING(loginame,1,12),
-		hostname=SUBSTRING(hostname,1, 12),
-		blk = CONVERT(char(3), blocked),
-		dbname=SUBSTRING(DB_NAME(dbid),1, 10),
-		cmd,
-		waittype
-FROM	master.dbo.sysprocesses
-WHERE	spid IN (SELECT blocked FROM master.dbo.sysprocesses);
-
-
------------------------------------------------------------------------------------------------------------------------------------------------
 --get locks on table
 -----------------------------------------------------------------------------------------------------------------------------------------------
-SELECT	*
+SELECT	resource_type, resource_associated_entity_id, request_mode, request_type, request_status, request_session_id, request_lifetime
 FROM	sys.dm_tran_locks
 WHERE	resource_database_id = DB_ID()
 AND	resource_associated_entity_id = OBJECT_ID(N'dbo.my-table-name');
@@ -26,6 +11,7 @@ AND	resource_associated_entity_id = OBJECT_ID(N'dbo.my-table-name');
 -----------------------------------------------------------------------------------------------------------------------------------------------
 --Get blocking queries
 -----------------------------------------------------------------------------------------------------------------------------------------------
+--script 1
 SELECT	db.name DBName,
 		tl.request_session_id,
 		wt.blocking_session_id,
@@ -41,3 +27,9 @@ FROM	sys.dm_tran_locks AS tl INNER JOIN sys.databases db ON db.database_id = tl.
 								INNER JOIN sys.dm_exec_connections ec2 ON ec2.session_id =wt.blocking_session_id
 								CROSS APPLY sys.dm_exec_sql_text(ec1.most_recent_sql_handle) AS h1
 								CROSS APPLY sys.dm_exec_sql_text(ec2.most_recent_sql_handle) AS h2
+
+
+--script 2: simpler
+SELECT	sq.text, req.* 
+FROM	sys.dm_exec_requests req CROSS APPLY sys.dm_exec_sql_text(sql_handle) sq
+WHERE	req.session_id = 724
