@@ -81,7 +81,11 @@ ORDER BY total_elapsed_time DESC
 --   Large scans are OK in small tables.
 --   Your index is not here, then no action is performed on that index yet.
 ----------------------------------------------------------------------------------------------------------------------------------------
-SELECT OBJECT_NAME(IX.OBJECT_ID) Table_Name
+DECLARE @SQL_SERVER_START_TIME as datetime;
+SET @SQL_SERVER_START_TIME = (select sqlserver_start_time from sys.dm_os_sys_info);
+
+SELECT  @SQL_SERVER_START_TIME as SQL_SERVER_START_TIME,
+		OBJECT_NAME(IX.OBJECT_ID) Table_Name
 	   ,IX.name AS Index_Name
 	   ,IX.type_desc Index_Type
 	   ,SUM(PS.[used_page_count]) * 8 IndexSizeKB
@@ -93,9 +97,8 @@ SELECT OBJECT_NAME(IX.OBJECT_ID) Table_Name
 	   ,IXUS.last_user_scan AS LastScan
 	   ,IXUS.last_user_lookup AS LastLookup
 	   ,IXUS.last_user_update AS LastUpdate
-FROM sys.indexes IX
-INNER JOIN sys.dm_db_index_usage_stats IXUS ON IXUS.index_id = IX.index_id AND IXUS.OBJECT_ID = IX.OBJECT_ID
-INNER JOIN sys.dm_db_partition_stats PS on PS.object_id=IX.object_id
+FROM sys.indexes IX INNER JOIN sys.dm_db_index_usage_stats IXUS ON IXUS.index_id = IX.index_id AND IXUS.OBJECT_ID = IX.OBJECT_ID
+					INNER JOIN sys.dm_db_partition_stats PS on PS.object_id=IX.object_id
 WHERE OBJECTPROPERTY(IX.OBJECT_ID,'IsUserTable') = 1
 AND		ix.is_primary_key = 0 --excludes primary key constraints
 and		ix.is_unique = 0 --exclude unique constraintrs
@@ -104,7 +107,9 @@ and		ixus.user_lookups = 0
 and		ixus.user_scans = 0
 and		ixus.user_seeks = 0
 GROUP BY OBJECT_NAME(IX.OBJECT_ID) ,IX.name ,IX.type_desc ,IXUS.user_seeks ,IXUS.user_scans ,IXUS.user_lookups,IXUS.user_updates ,IXUS.last_user_seek ,IXUS.last_user_scan ,IXUS.last_user_lookup ,IXUS.last_user_update
-order by 1 asc
+order by IXUS.user_updates desc
+
+
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------
