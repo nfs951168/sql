@@ -64,7 +64,7 @@ ORDER BY total_elapsed_time DESC
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------
---Index usage script
+--Index statistics | Unused indexes  since last sql server start (select sqlserver_start_time from sys.dm_os_sys_info)
 --  NumOfSeeks: indicates the number of times the index is used to find a specific row (retrieves selective rows from the table)
 --  NumOfScans: shows the number of times the leaf pages of the index are scanned (Index scan means it retrieves all the rows from the table)
 --  NumOfLookups: indicates the number of times a Clustered index is used by the Non-clustered index to fetch the full row (used in joins)
@@ -97,6 +97,12 @@ FROM sys.indexes IX
 INNER JOIN sys.dm_db_index_usage_stats IXUS ON IXUS.index_id = IX.index_id AND IXUS.OBJECT_ID = IX.OBJECT_ID
 INNER JOIN sys.dm_db_partition_stats PS on PS.object_id=IX.object_id
 WHERE OBJECTPROPERTY(IX.OBJECT_ID,'IsUserTable') = 1
+AND		ix.is_primary_key = 0 --excludes primary key constraints
+and		ix.is_unique = 0 --exclude unique constraintrs
+and		ixus.user_updates > 0 --indexes that where updated
+and		ixus.user_lookups = 0
+and		ixus.user_scans = 0
+and		ixus.user_seeks = 0
 GROUP BY OBJECT_NAME(IX.OBJECT_ID) ,IX.name ,IX.type_desc ,IXUS.user_seeks ,IXUS.user_scans ,IXUS.user_lookups,IXUS.user_updates ,IXUS.last_user_seek ,IXUS.last_user_scan ,IXUS.last_user_lookup ,IXUS.last_user_update
 order by 1 asc
 
