@@ -57,3 +57,12 @@ from	sys.tables T	inner join sys.indexes I on (i.object_id = t.object_id)
 						inner join sys.allocation_units au on (au.container_id = p.partition_id)
 						left join sys.schemas s on (s.schema_id = t.schema_id)
 group by t.name, s.name, p.rows
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+--Get transaction log info
+--Returns LogSize in MB and LogSpace used(%)
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+DBCC SQLPERF(logspace)
+
+
