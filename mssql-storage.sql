@@ -60,8 +60,9 @@ group by t.name, s.name, p.rows
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------
---Get transaction log info
---Returns LogSize in MB and LogSpace used(%)
+--Returns the current size of the transaction log and the percentage of log space used for each database. 
+--Use this information to monitor the amount of space used in a transaction log.
+--Get LogSize in MB and LogSpace used(%)
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 DBCC SQLPERF(logspace)
 
