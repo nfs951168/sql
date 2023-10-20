@@ -2,3 +2,10 @@
 --sys.dm_os_sys_info: server metadata as number os CPU, physical memory or reboot date time
 -----------------------------------------------------------------------------------------------------------
 select	* from	sys.dm_os_sys_info;
+
+
+
+-----------------------------------------------------------------------------------------------------------
+--return session details by sessionId
+-----------------------------------------------------------------------------------------------------------
+SELECT * FROM sys.dm_exec_sessions WHERE session_id = @@SPID;
