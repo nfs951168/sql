@@ -1,11 +1,7 @@
 -----------------------------------------------------------------------------------------------------
 --Returns the most expensive queries in database
 -----------------------------------------------------------------------------------------------------
-SELECT TOP 10 SUBSTRING(qt.TEXT, (qs.statement_start_offset/2)+1,
-((CASE qs.statement_end_offset
-WHEN -1 THEN DATALENGTH(qt.TEXT)
-ELSE qs.statement_end_offset
-END - qs.statement_start_offset)/2)+1),
+SELECT TOP 100 qt.Text,
 qs.execution_count,
 qs.total_logical_reads, qs.last_logical_reads,
 qs.total_logical_writes, qs.last_logical_writes,
