@@ -10,11 +10,13 @@ SELECT	TOP 100 qt.Text,
 		qs.total_elapsed_time/1000000 total_elapsed_time_in_S,
 		qs.last_elapsed_time/1000000 last_elapsed_time_in_S,
 		qs.last_execution_time,
+		qs.last_rows,
+		qs.min_rows,
+		qs.max_rows,
 		qp.query_plan
-FROM sys.dm_exec_query_stats qs
-CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) qt
-CROSS APPLY sys.dm_exec_query_plan(qs.plan_handle) qp
-where	qs.creation_time >= '2023-12-12 00:00:00' -- all plans created after date
+FROM 	sys.dm_exec_query_stats qs 	CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) qt
+					CROSS APPLY sys.dm_exec_query_plan(qs.plan_handle) qp
+WHERE	qs.creation_time >= '2024-04-04 00:00:00' -- all plans created after date
 ORDER BY qs.total_worker_time DESC -- CPU time
 
 
