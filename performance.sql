@@ -4,12 +4,13 @@
 SELECT	TOP 10 
 		qt.Text,
 		qs.execution_count,
+		qs.total_logical_reads,
 		qs.total_logical_reads/qs.execution_count as avg_logical_reads, 
 		qs.last_logical_reads,
-		qs.total_logical_writes/qs.execution_count as avg_logical_writes, 
-		qs.last_logical_writes,
+		qs.total_worker_time,
 		qs.total_worker_time/qs.execution_count as avg_worker_time,
 		qs.last_worker_time,
+		qs.total_elapsed_time,
 		qs.total_elapsed_time/qs.execution_count/1000000 as avg_elapsed_time_in_s,
 		qs.last_elapsed_time/1000000 last_elapsed_time_in_S,
 		qs.last_execution_time,
@@ -19,10 +20,12 @@ SELECT	TOP 10
 		qp.query_plan
 FROM 	sys.dm_exec_query_stats qs 	CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) qt
 					CROSS APPLY sys.dm_exec_query_plan(qs.plan_handle) qp
-WHERE	qs.creation_time >= '2024-04-04 00:00:00' -- all plans created after date
-ORDER BY 3 DESC -- High Disk Reading query
+WHERE	qs.creation_time >= '2024-04-08 00:00:00' -- all plans created after date
+and		qt.text like '%OSUSR_AZY_OBJECT%'
+ORDER BY qs.total_logical_reads DESC -- High Disk Reading query
 --ORDER BY qs.total_worker_time DESC -- High CPU query
 --ORDER BY qs.total_elapsed_time DESC -- Long Running query
+
 
 
 -- ----------------------------------------------------------------
